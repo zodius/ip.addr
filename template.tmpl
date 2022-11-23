@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MyIP: {{ .IP }}</title>
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
+  </head>
+  <body>
+	<h1>Connection</h1>
+	<table border="1">
+	  <tr><td>IP Address</td><td>{{ .IP }}</td></tr>
+	  <tr><td>Port</td><td>{{ .Port }}</td></tr>
+	  <tr><td>User Agent</td><td>{{ .UserAgent }}</td></tr>
+	  <tr><td>Language</td><td>{{ .Lang }}</td></tr>
+	  <tr><td>Encoding</td><td>{{ .Encoding }}</td></tr>
+	  <tr><td>MIME</td><td>{{ .MIME }}</td></tr>
+	  <tr><td>X-Forwarded-For</td><td>{{ .Forwarded }}</td></tr>
+	  <tr><td>Method</td><td>{{ .Method }}</td></tr>
+	</table>
+  </body>
+</html>
