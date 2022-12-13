@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -20,13 +23,39 @@ type RequestInfo struct {
 	Method    string `json:"method"`
 }
 
-func ExtractInfo(c *gin.Context) {
-	ip_string, port_string, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr))
+func GetRealIP(c *gin.Context) (ip_string string, port_string string, err error) {
+	trust_proxy := os.Getenv("TRUST_PROXY")
+
+	ip_string, port_string, err = net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr))
 	if err != nil {
+		return
+	}
+
+	if trust_proxy == "" {
+		return ip_string, port_string, nil
+	} else {
+		// Check trust proxy
+		if ip_string == trust_proxy {
+			real_ip := c.GetHeader("X-Real-IP")
+			real_port := c.GetHeader("X-Real-Port")
+			return real_ip, real_port, nil
+		} else {
+			log.Printf("%s : %s", ip_string, trust_proxy)
+			return "", "", fmt.Errorf("untrusted proxy")
+		}
+	}
+}
+
+func ExtractInfo(c *gin.Context) {
+	ip_string, port_string, err := GetRealIP(c)
+
+	if err != nil {
+		log.Printf("ExtractInfo Error: %v", err)
 		c.String(http.StatusInternalServerError, "something went wrong")
 		c.Abort()
 		return
 	}
+
 	port, _ := strconv.Atoi(port_string)
 
 	info := RequestInfo{
@@ -97,5 +126,5 @@ func main() {
 		c.JSON(http.StatusOK, info)
 	})
 
-	app.Run("0.0.0.0:8080")
+	app.Run("0.0.0.0:8001")
 }

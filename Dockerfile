@@ -6,5 +6,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -installsuffix cgo -o ip.addr main.go
 
 FROM scratch
 COPY --from=0 /app/ip.addr .
+COPY --from=0 /app/template.tmpl .
 EXPOSE 8080
 ENTRYPOINT ["/ip.addr"]
